@@ -1,13 +1,11 @@
 # Enterprise Phishing Simulation & Automated Defense
-> **Platform:** Kali Linux · 32GB RAM · Docker
 
----
 
 ## ⚠️ Ethical Notice
 
 All phishing simulations in this project are conducted exclusively in an **isolated lab environment**. No real users are targeted. All email addresses are fictional and use the `company.local` domain. This project is purely educational and for portfolio demonstration purposes. Phishing attacks against real individuals without explicit written authorization are illegal.
 
----
+
 
 ## Overview
 
