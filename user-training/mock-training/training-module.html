@@ -1,0 +1,387 @@
+<!-- user-training/mock-training/training-module.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phishing Awareness Training Module</title>
+<style>
+  :root {
+    --primary: #1565c0;
+    --primary-dark: #0d47a1;
+    --success: #2e7d32;
+    --danger: #c62828;
+    --warning: #f57f17;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #212121;
+    --muted: #757575;
+    --border: #e0e0e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { background: var(--primary); color: #fff; }
+  .header-inner { max-width: 900px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header-title { font-size: 20px; font-weight: 700; }
+  .header-sub { font-size: 12px; opacity: 0.8; }
+  .progress-bar-container { background: var(--primary-dark); padding: 8px 0; }
+  .progress-bar-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+  .progress-label { color: rgba(255,255,255,0.8); font-size: 12px; margin-bottom: 5px; }
+  .progress-track { background: rgba(255,255,255,0.2); border-radius: 10px; height: 8px; }
+  .progress-fill { background: #4fc3f7; border-radius: 10px; height: 8px; transition: width 0.5s ease; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  .card { background: var(--card); border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); padding: 32px; margin-bottom: 24px; }
+  h2 { font-size: 24px; color: var(--primary); margin-bottom: 16px; }
+  h3 { font-size: 18px; color: var(--text); margin-bottom: 12px; }
+  p { font-size: 15px; line-height: 1.7; color: #444; margin-bottom: 14px; }
+  .warning-box { background: #fff8e1; border-left: 4px solid var(--warning); padding: 14px 18px; margin: 16px 0; border-radius: 0 4px 4px 0; }
+  .danger-box  { background: #ffebee; border-left: 4px solid var(--danger);  padding: 14px 18px; margin: 16px 0; border-radius: 0 4px 4px 0; }
+  .success-box { background: #e8f5e9; border-left: 4px solid var(--success); padding: 14px 18px; margin: 16px 0; border-radius: 0 4px 4px 0; }
+  .sign-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 20px 0; }
+  .sign-card { background: #f9fbe7; border: 1px solid #c5e1a5; border-radius: 6px; padding: 16px; }
+  .sign-card .icon { font-size: 28px; margin-bottom: 8px; }
+  .sign-card h4 { font-size: 14px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+  .sign-card p { font-size: 13px; margin: 0; color: #555; }
+  .quiz-question { margin-bottom: 28px; }
+  .quiz-question > p { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; transition: border-color 0.2s, background 0.2s; font-size: 14px; }
+  .quiz-option:hover  { border-color: var(--primary); background: #e3f2fd; }
+  .quiz-option.correct   { border-color: var(--success) !important; background: #e8f5e9 !important; }
+  .quiz-option.incorrect { border-color: var(--danger)  !important; background: #ffebee !important; }
+  .quiz-option input[type="radio"] { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
+  .explanation { display: none; margin-top: 10px; padding: 10px 14px; border-radius: 4px; font-size: 13px; line-height: 1.6; }
+  .explanation.show { display: block; }
+  .check-btn { margin-top: 12px; padding: 8px 18px; border: 2px solid var(--primary); border-radius: 4px; background: transparent; color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #e3f2fd; }
+  .nav-buttons { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
+  .btn { padding: 12px 28px; border: none; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-outline { background: transparent; color: var(--primary); border: 2px solid var(--primary); }
+  .score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; border: 8px solid; }
+  .score-number { font-size: 42px; font-weight: 900; line-height: 1; }
+  .score-label  { font-size: 13px; color: #666; }
+  .cert-box { border: 3px double var(--primary); padding: 32px; text-align: center; margin-top: 24px; border-radius: 8px; background: linear-gradient(135deg, #e3f2fd, #f3e5f5); }
+  .cert-box h3 { font-size: 22px; color: var(--primary-dark); margin-bottom: 8px; }
+  .cert-name   { font-size: 26px; font-weight: 900; color: var(--primary); margin: 12px 0; }
+  .cert-date   { font-size: 13px; color: #666; margin-top: 12px; }
+  .cert-stamp  { font-size: 36px; margin-top: 12px; }
+  @media print { header, .progress-bar-container, .nav-buttons { display: none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="header-title">🛡 Phishing Awareness Training</div>
+      <div class="header-sub">Company Security Awareness Program · Est. 15 minutes</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.7);font-size:13px" id="section-counter">Section 1 of 4</div>
+  </div>
+</header>
+
+<div class="progress-bar-container">
+  <div class="progress-bar-inner">
+    <div class="progress-label" id="progress-label">Introduction</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:25%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════════════════════ SECTION 1 -->
+  <div class="section active" id="section-1">
+    <div class="card">
+      <h2>🎣 What is Phishing?</h2>
+      <p>Phishing is the most common form of cyberattack. Criminals send convincing fake emails that appear to come from trusted sources — Microsoft, your bank, your employer, Canada Post — to trick you into revealing passwords, clicking malicious links, or downloading malware.</p>
+      <div class="danger-box">
+        <strong>📊 The numbers:</strong> Over 90% of data breaches begin with a phishing email. In 2023, the average cost of a phishing breach exceeded $4.9 million CAD.
+      </div>
+      <p>Phishing bypasses firewalls, antivirus, and email filters by targeting the human element. An attacker only needs <strong>one person to click once</strong> to gain a foothold inside an organization.</p>
+      <h3>Why This Training Matters</h3>
+      <p>You are the last line of defence. Technical controls stop the majority of attacks — but the attacks that get through will land in your inbox. A few seconds of caution before every click can stop nearly every phishing attack cold.</p>
+      <div class="success-box">✅ After this training you will be able to identify phishing emails, avoid credential theft, and report suspicious messages correctly.</div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-primary" onclick="goToSection(2)">Next: Warning Signs →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ SECTION 2 -->
+  <div class="section" id="section-2">
+    <div class="card">
+      <h2>⚠️ The 8 Warning Signs of Phishing</h2>
+      <p>Memorise these red flags. Check for them before clicking anything in any email.</p>
+      <div class="sign-grid">
+        <div class="sign-card">
+          <div class="icon">🚨</div>
+          <h4>1. Urgency &amp; Threats</h4>
+          <p>"Act NOW or lose access." Pressure tactics stop you from thinking clearly. Legitimate services don't demand instant action under threat.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">📧</div>
+          <h4>2. Mismatched Sender</h4>
+          <p>The display name says "Microsoft" but the actual email address is from a random domain. Always click the sender name to reveal the real address.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">🔗</div>
+          <h4>3. Suspicious Links</h4>
+          <p>Hover before you click. The URL must match the real company domain. Beware lookalike domains (microsoft-secure.xyz) and URL shorteners.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">📎</div>
+          <h4>4. Unexpected Attachments</h4>
+          <p>.exe, .zip, .js, .lnk files in emails you didn't expect are almost always malicious. When in doubt, call the sender to verify.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">🔑</div>
+          <h4>5. Requests for Credentials</h4>
+          <p>No legitimate organization will ever ask for your password by email. Ever. Full stop.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">👤</div>
+          <h4>6. Generic Greetings</h4>
+          <p>"Dear Customer" instead of your name means the sender likely doesn't have a real account record for you — classic bulk phishing.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">💰</div>
+          <h4>7. Unusual Requests</h4>
+          <p>CEO wire transfers, HR requests for your SIN, IT requests for your password — always verify unusual requests through a separate channel before acting.</p>
+        </div>
+        <div class="sign-card">
+          <div class="icon">🔒</div>
+          <h4>8. HTTPS ≠ Safe</h4>
+          <p>The padlock icon only means your connection is encrypted. It does NOT mean the site is legitimate. Phishing sites use HTTPS freely.</p>
+        </div>
+      </div>
+      <div class="warning-box">
+        <strong>Quick check before every click:</strong> Does the sender domain match? Does the link go where it claims? Was I expecting this? If uncertain — don't click. Verify first.
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="goToSection(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goToSection(3)">Next: Quiz →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ SECTION 3 -->
+  <div class="section" id="section-3">
+    <div class="card">
+      <h2>📝 Knowledge Check — 5 Questions</h2>
+      <p>Select your answer for each question, then click <strong>Check Answer</strong>. You need <strong>4 out of 5 (80%)</strong> to pass and receive your certificate.</p>
+
+      <!-- Q1 -->
+      <div class="quiz-question" id="q1">
+        <p>Q1: You receive an email from <em>"IT Support &lt;helpdesk@company-it-portal.net&gt;"</em> saying your password expires in 1 hour. What should you do?</p>
+        <div class="quiz-options">
+          <label class="quiz-option"><input type="radio" name="q1" value="a"><span>A. Click the link immediately — IT sends urgent password notices.</span></label>
+          <label class="quiz-option"><input type="radio" name="q1" value="b"><span>B. Forward to your manager for approval before clicking.</span></label>
+          <label class="quiz-option"><input type="radio" name="q1" value="c"><span>C. Verify the sender domain, hover the link, and contact IT directly through official channels if suspicious.</span></label>
+          <label class="quiz-option"><input type="radio" name="q1" value="d"><span>D. Reply to the email and ask if it is genuine.</span></label>
+        </div>
+        <div class="explanation" id="q1-exp"></div>
+        <button class="check-btn" onclick="checkAnswer('q1','c','The sender domain company-it-portal.net is NOT your company domain. Never click — always verify through official channels you already know, not through anything provided in the suspicious email.')">Check Answer</button>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-question" id="q2">
+        <p>Q2: A webpage shows a padlock icon and uses HTTPS. Does this mean the site is safe to enter your password?</p>
+        <div class="quiz-options">
+          <label class="quiz-option"><input type="radio" name="q2" value="a"><span>A. Yes — HTTPS means the site has been verified as legitimate by authorities.</span></label>
+          <label class="quiz-option"><input type="radio" name="q2" value="b"><span>B. No — HTTPS only encrypts the connection. It says nothing about whether the site itself is a phishing page.</span></label>
+          <label class="quiz-option"><input type="radio" name="q2" value="c"><span>C. Only if the padlock is green and extended validation.</span></label>
+          <label class="quiz-option"><input type="radio" name="q2" value="d"><span>D. Only on government and banking websites.</span></label>
+        </div>
+        <div class="explanation" id="q2-exp"></div>
+        <button class="check-btn" onclick="checkAnswer('q2','b','HTTPS encrypts traffic between your browser and the server — that is all. Attackers obtain free SSL certificates for phishing sites routinely. Always verify the domain itself, not just the padlock.')">Check Answer</button>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-question" id="q3">
+        <p>Q3: You accidentally clicked a link in a phishing email. What is your FIRST action?</p>
+        <div class="quiz-options">
+          <label class="quiz-option"><input type="radio" name="q3" value="a"><span>A. Reboot your computer immediately to remove any potential malware.</span></label>
+          <label class="quiz-option"><input type="radio" name="q3" value="b"><span>B. Change your password immediately from the same computer.</span></label>
+          <label class="quiz-option"><input type="radio" name="q3" value="c"><span>C. Disconnect your computer from the network (Wi-Fi or ethernet) and call IT Security.</span></label>
+          <label class="quiz-option"><input type="radio" name="q3" value="d"><span>D. Run antivirus. If it finds nothing, continue working normally.</span></label>
+        </div>
+        <div class="explanation" id="q3-exp"></div>
+        <button class="check-btn" onclick="checkAnswer('q3','c','Disconnecting from the network prevents any malware from communicating with the attacker. Do NOT reboot — this can destroy forensic evidence. Do NOT change passwords from a potentially compromised machine. Call IT Security immediately.')">Check Answer</button>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-question" id="q4">
+        <p>Q4: An email's Reply-To address is different from the From address and leads to a Gmail account. This is:</p>
+        <div class="quiz-options">
+          <label class="quiz-option"><input type="radio" name="q4" value="a"><span>A. Normal — companies often use different systems for sending and receiving replies.</span></label>
+          <label class="quiz-option"><input type="radio" name="q4" value="b"><span>B. A strong indicator of phishing or email spoofing — the attacker wants to intercept your reply.</span></label>
+          <label class="quiz-option"><input type="radio" name="q4" value="c"><span>C. Only suspicious if the email asks for money or credentials.</span></label>
+          <label class="quiz-option"><input type="radio" name="q4" value="d"><span>D. Irrelevant — only the subject line and attachments matter.</span></label>
+        </div>
+        <div class="explanation" id="q4-exp"></div>
+        <button class="check-btn" onclick="checkAnswer('q4','b','A mismatched Reply-To — especially to a personal email service — is a classic Business Email Compromise (BEC) technique. It ensures the attacker receives your reply instead of the legitimate sender.')">Check Answer</button>
+      </div>
+
+      <!-- Q5 -->
+      <div class="quiz-question" id="q5">
+        <p>Q5: Your company runs phishing simulations. You receive what looks like a test email. What should you do?</p>
+        <div class="quiz-options">
+          <label class="quiz-option"><input type="radio" name="q5" value="a"><span>A. Click the link to prove you know it is a test.</span></label>
+          <label class="quiz-option"><input type="radio" name="q5" value="b"><span>B. Tell your colleagues immediately so they don't fall for it.</span></label>
+          <label class="quiz-option"><input type="radio" name="q5" value="c"><span>C. Report it using the official phishing reporting process, then delete it.</span></label>
+          <label class="quiz-option"><input type="radio" name="q5" value="d"><span>D. Ignore it — reporting test emails wastes the SOC's time.</span></label>
+        </div>
+        <div class="explanation" id="q5-exp"></div>
+        <button class="check-btn" onclick="checkAnswer('q5','c','Treating simulation emails exactly like real phishing is the correct response. Reporting contributes to organizational metrics, helps the SOC measure awareness levels, and reinforces the habit of reporting — which is the single most valuable security behaviour an employee can develop.')">Check Answer</button>
+      </div>
+
+      <div id="submit-wrap" style="display:none; margin-top:16px; text-align:right">
+        <button class="btn btn-primary" onclick="submitQuiz()">Submit &amp; See Results →</button>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" onclick="goToSection(2)">← Back</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ SECTION 4 -->
+  <div class="section" id="section-4">
+    <div class="card" style="text-align:center">
+      <h2>Training Complete</h2>
+      <div class="score-circle" id="score-circle">
+        <div class="score-number" id="score-number">—</div>
+        <div class="score-label">out of 5</div>
+      </div>
+      <div id="result-message" style="font-size:16px; margin-bottom:24px;"></div>
+
+      <div class="card" style="text-align:left; background:#f9fbe7;">
+        <h3>📞 Reporting Procedure — Remember This</h3>
+        <p>If you receive a real or suspected phishing email:</p>
+        <ul style="font-size:14px; line-height:1.9; padding-left:22px; color:#333">
+          <li>Forward it to <strong>soc@company.local</strong></li>
+          <li>Use the <strong>Report Phishing</strong> button in your email client</li>
+          <li>Call IT Security: <strong>ext. 4357</strong></li>
+          <li>Slack: <strong>#report-phishing</strong></li>
+        </ul>
+        <p style="margin-top:12px; font-size:13px; color:var(--success); font-weight:600">
+          There is NEVER a penalty for reporting — even false alarms are valuable signals.
+        </p>
+      </div>
+
+      <div class="cert-box" id="cert-box" style="display:none">
+        <h3>🏆 Certificate of Completion</h3>
+        <p style="font-size:14px; color:#555">This certifies that the holder has successfully completed</p>
+        <div class="cert-name">Phishing Awareness Training</div>
+        <p style="font-size:14px; color:#555">Company Security Awareness Program — Passed with a score of</p>
+        <div style="font-size:28px; font-weight:900; color:var(--success)" id="cert-score"></div>
+        <div class="cert-date" id="cert-date"></div>
+        <div class="cert-stamp">🛡️</div>
+      </div>
+    </div>
+    <div class="nav-buttons" style="justify-content:center">
+      <button class="btn btn-outline" onclick="goToSection(2)">← Review Warning Signs</button>
+      <button class="btn btn-success" onclick="window.print()">🖨 Print Certificate</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const CORRECT = { q1: 'c', q2: 'b', q3: 'c', q4: 'b', q5: 'c' };
+  const EXPLANATIONS = {
+    q1: "The sender domain 'company-it-portal.net' is not your company's real domain. Always verify urgent requests through official channels you already know — never through anything provided in the suspicious email itself.",
+    q2: "HTTPS only encrypts the connection between your browser and the server. It does not verify that the site is legitimate. Attackers freely obtain SSL certificates for phishing pages.",
+    q3: "Disconnecting from the network prevents any malware from communicating outward. Do NOT reboot (destroys forensic evidence). Do NOT change passwords from the potentially compromised machine. Contact IT Security immediately.",
+    q4: "A mismatched Reply-To address is a classic Business Email Compromise technique — the attacker intercepts your reply rather than the legitimate sender receiving it.",
+    q5: "Reporting simulation emails exactly as you would report a real phishing email is the correct behaviour. It reinforces the habit, contributes to organizational metrics, and is the single most valuable security action an employee can develop."
+  };
+
+  const userAnswers = {};
+  let answeredCount = 0;
+
+  function checkAnswer(qid, correctVal, explanation) {
+    const selected = document.querySelector(`input[name="${qid}"]:checked`);
+    if (!selected) { alert('Please select an answer first.'); return; }
+    if (userAnswers[qid] !== undefined) return; // already answered
+
+    userAnswers[qid] = selected.value;
+    answeredCount++;
+
+    // Style options
+    document.querySelectorAll(`input[name="${qid}"]`).forEach(radio => {
+      radio.disabled = true;
+      const label = radio.closest('.quiz-option');
+      if (radio.value === correctVal) {
+        label.classList.add('correct');
+      } else if (radio.value === selected.value && selected.value !== correctVal) {
+        label.classList.add('incorrect');
+      }
+    });
+
+    // Show explanation
+    const expDiv = document.getElementById(`${qid}-exp`);
+    const passed = selected.value === correctVal;
+    expDiv.textContent = (passed ? '✅ Correct! ' : '❌ Incorrect. ') + EXPLANATIONS[qid];
+    expDiv.style.background  = passed ? '#e8f5e9' : '#ffebee';
+    expDiv.style.padding     = '10px 14px';
+    expDiv.style.borderRadius= '4px';
+    expDiv.style.marginTop   = '10px';
+    expDiv.classList.add('show');
+
+    if (answeredCount === Object.keys(CORRECT).length) {
+      document.getElementById('submit-wrap').style.display = 'block';
+    }
+  }
+
+  function submitQuiz() {
+    let score = 0;
+    for (const [q, a] of Object.entries(userAnswers)) {
+      if (a === CORRECT[q]) score++;
+    }
+    const passed = score >= 4;
+    goToSection(4);
+
+    const circle = document.getElementById('score-circle');
+    circle.style.borderColor = passed ? 'var(--success)' : 'var(--danger)';
+    const numEl = document.getElementById('score-number');
+    numEl.textContent = score;
+    numEl.style.color = passed ? 'var(--success)' : 'var(--danger)';
+
+    const msg = document.getElementById('result-message');
+    if (passed) {
+      msg.innerHTML = `<span style="color:var(--success);font-weight:700;font-size:18px">✅ Passed!</span><br>
+        <span style="color:#555;font-size:14px">You scored ${score}/5. You are a phishing-aware employee.</span>`;
+      const certBox  = document.getElementById('cert-box');
+      certBox.style.display = 'block';
+      document.getElementById('cert-score').textContent = `${score} / 5`;
+      document.getElementById('cert-date').textContent  =
+        'Completed: ' + new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+    } else {
+      msg.innerHTML = `<span style="color:var(--danger);font-weight:700;font-size:18px">❌ Score: ${score}/5 — Retake Required</span><br>
+        <span style="color:#555;font-size:14px">You need 4/5 to pass. Please review the warning signs and retake the quiz.</span>`;
+    }
+  }
+
+  const SECTIONS      = ['Introduction', 'Warning Signs', 'Knowledge Quiz', 'Results'];
+  const PROG_WIDTHS   = ['25%', '50%', '75%', '100%'];
+
+  function goToSection(num) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`section-${num}`).classList.add('active');
+    document.getElementById('section-counter').textContent  = `Section ${num} of 4`;
+    document.getElementById('progress-label').textContent   = SECTIONS[num - 1];
+    document.getElementById('progress-fill').style.width    = PROG_WIDTHS[num - 1];
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
+```
+

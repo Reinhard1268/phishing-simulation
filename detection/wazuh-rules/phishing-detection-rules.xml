@@ -1,0 +1,212 @@
+<!-- detection/wazuh-rules/phishing-detection-rules.xml -->
+<!-- Project 08 — Phishing Simulation & Automated Defense -->
+<!-- Wazuh Custom Rules: Phishing Detection -->
+<!-- Rule IDs: 100800 - 100819 -->
+
+<group name="phishing,email,security">
+
+  <!-- Rule 100800: Suspicious email subject keywords detected -->
+  <rule id="100800" level="7">
+    <decoded_as>email-gateway</decoded_as>
+    <regex type="pcre2">(?i)(urgent|verify.your|account.suspended|action.required|password.expir|mfa.required|update.now|confirm.your.identity|unusual.activity|security.alert)</regex>
+    <field name="email.subject">\.+</field>
+    <description>Suspicious phishing keyword detected in email subject: $(email.subject)</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>phishing,email_subject,</group>
+  </rule>
+
+  <!-- Rule 100801: External sender to internal recipient (domain mismatch) -->
+  <rule id="100801" level="8">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.from_domain">\.+</field>
+    <field name="email.to_domain">company\.local</field>
+    <regex type="pcre2">^(?!.*company\.local).*$</regex>
+    <description>External sender targeting internal recipient — possible spear-phishing: From $(email.from) To $(email.to)</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>phishing,external_sender,</group>
+  </rule>
+
+  <!-- Rule 100802: Email with executable attachment -->
+  <rule id="100802" level="12">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.attachment">\.+</field>
+    <regex type="pcre2">(?i)\.(exe|bat|cmd|ps1|vbs|js|jar|scr|pif|hta|msi|lnk|reg|dll|com)$</regex>
+    <description>Email contains potentially malicious executable attachment: $(email.attachment)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1204.002</id>
+    </mitre>
+    <group>phishing,malicious_attachment,high_severity,</group>
+  </rule>
+
+  <!-- Rule 100803: Email link points to raw IP address instead of domain -->
+  <rule id="100803" level="10">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.url">\.+</field>
+    <regex type="pcre2">https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}</regex>
+    <description>Email contains link to raw IP address (no domain) — strong phishing indicator: $(email.url)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1071.001</id>
+    </mitre>
+    <group>phishing,ip_link,</group>
+  </rule>
+
+  <!-- Rule 100804: Sender display name doesn't match actual sending domain -->
+  <rule id="100804" level="9">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.sender_mismatch">yes</field>
+    <description>Email sender display name does not match actual sending domain — possible spoofing: $(email.from_display) vs $(email.from_actual)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1036</id>
+    </mitre>
+    <group>phishing,sender_spoof,</group>
+  </rule>
+
+  <!-- Rule 100805: Proxy log — user clicked on known phishing domain -->
+  <rule id="100805" level="12">
+    <decoded_as>proxy-log</decoded_as>
+    <field name="proxy.action">allowed</field>
+    <regex type="pcre2">(?i)(phishing-lab\.local|phish|credential-harvest|login-secure\.|account-verify\.)</regex>
+    <description>User clicked link to known phishing domain: $(proxy.user) → $(proxy.url)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1204.001</id>
+    </mitre>
+    <group>phishing,user_clicked,</group>
+  </rule>
+
+  <!-- Rule 100806: Proxy log — credential submission to non-corporate site -->
+  <rule id="100806" level="14">
+    <decoded_as>proxy-log</decoded_as>
+    <field name="proxy.method">POST</field>
+    <regex type="pcre2">(?i)(password|passwd|credential|login|auth)</regex>
+    <field name="proxy.destination_domain">^(?!.*company\.local).*$</field>
+    <description>Possible credential submission to external non-corporate site: $(proxy.user) → $(proxy.url)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1056.003</id>
+    </mitre>
+    <group>phishing,credential_submission,critical,</group>
+  </rule>
+
+  <!-- Rule 100807: Multiple users clicking same suspicious external URL -->
+  <rule id="100807" level="11" frequency="3" timeframe="300">
+    <if_matched_sid>100805</if_matched_sid>
+    <same_field>proxy.url</same_field>
+    <description>Multiple users (3+) clicked the same suspicious external URL within 5 minutes — likely phishing campaign: $(proxy.url)</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>phishing,mass_click,campaign_detected,</group>
+  </rule>
+
+  <!-- Rule 100808: Unusual email volume from single external sender -->
+  <rule id="100808" level="8" frequency="20" timeframe="600">
+    <decoded_as>email-gateway</decoded_as>
+    <same_field>email.from</same_field>
+    <description>Unusual email volume from single external sender (20+ in 10 min) — possible phishing campaign launch: $(email.from)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1534</id>
+    </mitre>
+    <group>phishing,email_volume,</group>
+  </rule>
+
+  <!-- Rule 100809: URL shortener detected in email link -->
+  <rule id="100809" level="7">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.url">\.+</field>
+    <regex type="pcre2">(?i)(bit\.ly|tinyurl\.com|t\.co|ow\.ly|goo\.gl|is\.gd|buff\.ly|short\.link|rebrand\.ly|cutt\.ly)</regex>
+    <description>URL shortener detected in email link — often used to mask phishing destinations: $(email.url)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1027</id>
+    </mitre>
+    <group>phishing,url_shortener,</group>
+  </rule>
+
+  <!-- Rule 100810: Combination — suspicious subject AND external sender (high confidence) -->
+  <rule id="100810" level="12">
+    <if_matched_sid>100800</if_matched_sid>
+    <if_matched_sid>100801</if_matched_sid>
+    <description>HIGH CONFIDENCE phishing: suspicious subject keywords AND external sender targeting internal user</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>phishing,high_confidence,</group>
+  </rule>
+
+  <!-- Rule 100811: SPF authentication failure on inbound email -->
+  <rule id="100811" level="8">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.spf_result">fail|softfail</field>
+    <description>Inbound email failed SPF authentication — possible domain spoofing: From $(email.from)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1036.005</id>
+    </mitre>
+    <group>phishing,spf_fail,</group>
+  </rule>
+
+  <!-- Rule 100812: DKIM authentication failure on inbound email -->
+  <rule id="100812" level="7">
+    <decoded_as>email-gateway</decoded_as>
+    <field name="email.dkim_result">fail|none</field>
+    <description>Inbound email failed DKIM authentication: From $(email.from)</description>
+    <mitre>
+      <id>T1566.001</id>
+    </mitre>
+    <group>phishing,dkim_fail,</group>
+  </rule>
+
+  <!-- Rule 100813: Both SPF and DKIM failed — high spoofing confidence -->
+  <rule id="100813" level="13">
+    <if_matched_sid>100811</if_matched_sid>
+    <if_matched_sid>100812</if_matched_sid>
+    <description>CRITICAL: Both SPF and DKIM failed for inbound email — high confidence domain spoofing: $(email.from)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1036.005</id>
+    </mitre>
+    <group>phishing,spoofing_confirmed,critical,</group>
+  </rule>
+
+  <!-- Rule 100814: User downloaded file via email link (possible payload) -->
+  <rule id="100814" level="11">
+    <decoded_as>proxy-log</decoded_as>
+    <field name="proxy.content_type">\.+</field>
+    <regex type="pcre2">(?i)(application/octet-stream|application/exe|application/x-msdownload|application/zip|application/x-rar)</regex>
+    <field name="proxy.referer">mail\.|webmail\.|outlook\.</field>
+    <description>User downloaded potentially malicious file via email link: $(proxy.user) → $(proxy.url)</description>
+    <mitre>
+      <id>T1566.001</id>
+      <id>T1204.002</id>
+    </mitre>
+    <group>phishing,file_download,</group>
+  </rule>
+
+  <!-- Rule 100815: GoPhish campaign link clicked (lab detection) -->
+  <rule id="100815" level="6">
+    <decoded_as>web-server</decoded_as>
+    <field name="http.url">\.+</field>
+    <regex type="pcre2">/\?rid=[a-zA-Z0-9]+</regex>
+    <description>GoPhish tracking link clicked — phishing simulation event recorded: $(http.client_ip)</description>
+    <group>phishing,gophish,simulation,</group>
+  </rule>
+
+  <!-- Rule 100816: GoPhish credential submission detected (lab) -->
+  <rule id="100816" level="8">
+    <if_matched_sid>100815</if_matched_sid>
+    <decoded_as>web-server</decoded_as>
+    <field name="http.method">POST</field>
+    <description>GoPhish credential capture — simulated credential submission recorded: $(http.client_ip)</description>
+    <group>phishing,gophish,simulation,credential_capture,</group>
+  </rule>
+
+</group>

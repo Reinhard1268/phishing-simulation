@@ -1,0 +1,58 @@
+{
+  "metric": "Phishing Click Rate Tracker",
+  "program": "Enterprise Phishing Simulation — Q1 2024",
+  "rounds": [
+    {
+      "round": 1,
+      "label": "Round 1 — No Training",
+      "date": "2024-01-16",
+      "click_rate": 68.0,
+      "submission_rate": 40.0,
+      "reporting_rate": 10.0,
+      "clicked": 7,
+      "submitted": 4,
+      "reported": 1,
+      "total": 10,
+      "confidence_interval_95": { "lower": 39.0, "upper": 91.0 },
+      "template": "Office365-MFA-Update"
+    },
+    {
+      "round": 2,
+      "label": "Round 2 — Post Training",
+      "date": "2024-02-13",
+      "click_rate": 31.0,
+      "submission_rate": 10.0,
+      "reporting_rate": 40.0,
+      "clicked": 3,
+      "submitted": 1,
+      "reported": 4,
+      "total": 10,
+      "confidence_interval_95": { "lower": 9.0, "upper": 61.0 },
+      "template": "IT-Password-Expiry"
+    },
+    {
+      "round": 3,
+      "label": "Round 3 — Tuned Defenses",
+      "date": "2024-03-12",
+      "click_rate": 9.0,
+      "submission_rate": 0.0,
+      "reporting_rate": 60.0,
+      "clicked": 1,
+      "submitted": 0,
+      "reported": 6,
+      "total": 10,
+      "confidence_interval_95": { "lower": 0.0, "upper": 41.0 },
+      "template": "HR-Benefits-Enrollment"
+    }
+  ],
+  "template_click_rates": [
+    { "template": "Office365-MFA-Update", "click_rate": 68.0, "submission_rate": 40.0 },
+    { "template": "IT-Password-Expiry", "click_rate": 30.0, "submission_rate": 10.0 },
+    { "template": "HR-Benefits-Enrollment", "click_rate": 10.0, "submission_rate": 0.0 },
+    { "template": "CEO-Wire-Transfer", "click_rate": 0.0, "submission_rate": 0.0 },
+    { "template": "Parcel-Delivery", "click_rate": 0.0, "submission_rate": 0.0 }
+  ],
+  "hour_of_day_clicks": {
+    "09": 2, "10": 3, "11": 1, "12": 0, "13": 2, "14": 1, "15": 0, "16": 1, "17": 0
+  }
+}

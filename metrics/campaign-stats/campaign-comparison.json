@@ -1,0 +1,78 @@
+{
+  "program": "Enterprise Phishing Simulation",
+  "total_campaigns": 3,
+  "total_targets": 10,
+  "campaigns": [
+    {
+      "campaign_id": 1,
+      "name": "Campaign-Round1-NoTraining",
+      "date": "2024-01-16",
+      "template": "Office365-MFA-Update",
+      "landing_page": "Office365-Login-Clone",
+      "stats": {
+        "sent": 10, "opened": 9, "clicked": 7, "submitted": 4, "reported": 1,
+        "open_rate": 90.0, "click_rate": 70.0, "submission_rate": 40.0, "report_rate": 10.0
+      },
+      "template_performance": {
+        "office365_mfa": { "sent": 10, "clicked": 7, "submitted": 4 }
+      },
+      "click_by_hour": {
+        "9": 2, "10": 2, "11": 1, "12": 0, "13": 1, "14": 0, "15": 0, "16": 1, "17": 0
+      },
+      "device_breakdown": { "desktop": 6, "mobile": 1 }
+    },
+    {
+      "campaign_id": 2,
+      "name": "Campaign-Round2-PostTraining",
+      "date": "2024-02-13",
+      "template": "IT-Password-Expiry",
+      "landing_page": "IT-Portal-Login",
+      "stats": {
+        "sent": 10, "opened": 7, "clicked": 3, "submitted": 1, "reported": 4,
+        "open_rate": 70.0, "click_rate": 30.0, "submission_rate": 10.0, "report_rate": 40.0
+      },
+      "template_performance": {
+        "it_password_expiry": { "sent": 10, "clicked": 3, "submitted": 1 }
+      },
+      "click_by_hour": {
+        "9": 0, "10": 0, "11": 1, "12": 1, "13": 0, "14": 1, "15": 0, "16": 0, "17": 0
+      },
+      "device_breakdown": { "desktop": 3, "mobile": 0 }
+    },
+    {
+      "campaign_id": 3,
+      "name": "Campaign-Round3-TunedDefenses",
+      "date": "2024-03-12",
+      "template": "HR-Benefits-Enrollment",
+      "landing_page": "HR-Benefits-Portal",
+      "stats": {
+        "sent": 10, "opened": 4, "clicked": 1, "submitted": 0, "reported": 6,
+        "open_rate": 40.0, "click_rate": 10.0, "submission_rate": 0.0, "report_rate": 60.0
+      },
+      "template_performance": {
+        "hr_benefits": { "sent": 10, "clicked": 1, "submitted": 0 }
+      },
+      "click_by_hour": {
+        "9": 0, "10": 1, "11": 0, "12": 0, "13": 0, "14": 0, "15": 0, "16": 0, "17": 0
+      },
+      "device_breakdown": { "desktop": 1, "mobile": 0 }
+    }
+  ],
+  "template_effectiveness_overall": {
+    "office365_mfa": { "click_rate": 70.0, "submission_rate": 40.0, "rank": 1 },
+    "it_password_expiry": { "click_rate": 30.0, "submission_rate": 10.0, "rank": 2 },
+    "hr_benefits": { "click_rate": 10.0, "submission_rate": 0.0, "rank": 3 }
+  },
+  "most_vulnerable_roles": [
+    { "position": "Accountant", "clicked_rounds": 1, "submitted_rounds": 1 },
+    { "position": "Marketing Specialist", "clicked_rounds": 2, "submitted_rounds": 1 },
+    { "position": "Operations Analyst", "clicked_rounds": 1, "submitted_rounds": 1 },
+    { "position": "Sales Representative", "clicked_rounds": 1, "submitted_rounds": 1 }
+  ],
+  "industry_benchmarks": {
+    "source": "Proofpoint State of the Phish 2023",
+    "avg_click_rate_no_training": 62.0,
+    "avg_click_rate_post_training": 35.0,
+    "avg_reporting_rate_mature_program": 55.0
+  }
+}

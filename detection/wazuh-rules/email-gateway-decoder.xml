@@ -1,0 +1,120 @@
+<!-- detection/wazuh-rules/email-gateway-decoder.xml -->
+<!-- Project 08 — Phishing Simulation & Automated Defense -->
+<!-- Wazuh Custom Decoder: Email Gateway Log Parser -->
+<!-- Compatible with Postfix, Exchange, and generic email gateway formats -->
+
+<decoder name="email-gateway">
+  <prematch>^.*(?:postfix|sendmail|exchange|email-gateway|mailgateway).*$</prematch>
+</decoder>
+
+<!-- Postfix: Message accepted -->
+<decoder name="email-gateway-postfix-accepted">
+  <parent>email-gateway</parent>
+  <prematch>: [\w]+: to=</prematch>
+  <regex offset="after_prematch">to=&lt;(\S+@\S+)&gt;, relay=(\S+), delay=\S+, .*status=(\w+)</regex>
+  <order>email.to,email.relay,email.status</order>
+</decoder>
+
+<!-- Postfix: Message from external sender -->
+<decoder name="email-gateway-postfix-from">
+  <parent>email-gateway</parent>
+  <prematch>: [\w]+: from=</prematch>
+  <regex offset="after_prematch">from=&lt;(\S+@(\S+))&gt;, size=(\d+), nrcpt=(\d+)</regex>
+  <order>email.from,email.from_domain,email.size,email.recipients</order>
+</decoder>
+
+<!-- Exchange: Transport log format -->
+<decoder name="email-gateway-exchange">
+  <parent>email-gateway</parent>
+  <prematch>^[\d\-]+T[\d:\.]+Z,</prematch>
+  <regex>^([\d\-]+T[\d:\.]+Z),\S+,\S+,(\S+@\S+),(\S+@\S+),(\d+),(\w+),([^,]+),([^,]+)</regex>
+  <order>email.timestamp,email.from,email.to,email.message_size,email.status,email.subject,email.direction</order>
+</decoder>
+
+<!-- Generic email gateway: subject line extraction -->
+<decoder name="email-gateway-subject">
+  <parent>email-gateway</parent>
+  <prematch>Subject: </prematch>
+  <regex offset="after_prematch">^(.+)$</regex>
+  <order>email.subject</order>
+</decoder>
+
+<!-- Attachment filename extraction -->
+<decoder name="email-gateway-attachment">
+  <parent>email-gateway</parent>
+  <prematch>(?:attachment|filename|attach)=</prematch>
+  <regex offset="after_prematch">(?:attachment|filename|attach)=["']?([^\s"',;]+)</regex>
+  <order>email.attachment</order>
+</decoder>
+
+<!-- URL extraction from email body logs -->
+<decoder name="email-gateway-url">
+  <parent>email-gateway</parent>
+  <prematch>url=</prematch>
+  <regex offset="after_prematch">url=(https?://[^\s,]+)</regex>
+  <order>email.url</order>
+</decoder>
+
+<!-- SPF result extraction -->
+<decoder name="email-gateway-spf">
+  <parent>email-gateway</parent>
+  <prematch>spf=</prematch>
+  <regex offset="after_prematch">spf=(pass|fail|softfail|neutral|none|permerror|temperror)</regex>
+  <order>email.spf_result</order>
+</decoder>
+
+<!-- DKIM result extraction -->
+<decoder name="email-gateway-dkim">
+  <parent>email-gateway</parent>
+  <prematch>dkim=</prematch>
+  <regex offset="after_prematch">dkim=(pass|fail|none|policy|neutral|temperror|permerror)</regex>
+  <order>email.dkim_result</order>
+</decoder>
+
+<!-- DMARC result extraction -->
+<decoder name="email-gateway-dmarc">
+  <parent>email-gateway</parent>
+  <prematch>dmarc=</prematch>
+  <regex offset="after_prematch">dmarc=(pass|fail|none)</regex>
+  <order>email.dmarc_result</order>
+</decoder>
+
+<!-- Sender mismatch flag (display name vs actual domain) -->
+<decoder name="email-gateway-sender-mismatch">
+  <parent>email-gateway</parent>
+  <prematch>sender_mismatch=</prematch>
+  <regex offset="after_prematch">sender_mismatch=(yes|no), display_name=([^,]+), actual_from=(\S+@\S+)</regex>
+  <order>email.sender_mismatch,email.from_display,email.from_actual</order>
+</decoder>
+
+<!-- Action taken on email (deliver/quarantine/block/tag) -->
+<decoder name="email-gateway-action">
+  <parent>email-gateway</parent>
+  <prematch>action=</prematch>
+  <regex offset="after_prematch">action=(deliver|quarantine|block|tag|redirect)</regex>
+  <order>email.action</order>
+</decoder>
+
+<!-- X-Originating-IP header extraction -->
+<decoder name="email-gateway-originating-ip">
+  <parent>email-gateway</parent>
+  <prematch>originating.ip=</prematch>
+  <regex offset="after_prematch">originating.ip=((?:\d{1,3}\.){3}\d{1,3})</regex>
+  <order>email.originating_ip</order>
+</decoder>
+
+<!-- Return-Path extraction -->
+<decoder name="email-gateway-return-path">
+  <parent>email-gateway</parent>
+  <prematch>return.path=</prematch>
+  <regex offset="after_prematch">return.path=&lt;?(\S+@\S+)&gt;?</regex>
+  <order>email.return_path</order>
+</decoder>
+
+<!-- Reply-To header extraction -->
+<decoder name="email-gateway-reply-to">
+  <parent>email-gateway</parent>
+  <prematch>reply.to=</prematch>
+  <regex offset="after_prematch">reply.to=&lt;?(\S+@\S+)&gt;?</regex>
+  <order>email.reply_to</order>
+</decoder>

@@ -1,0 +1,96 @@
+{
+  "phishing_hunting_queries": [
+    {
+      "id": "PHQ-001",
+      "title": "Users Who Clicked Phishing Links Today",
+      "description": "Identify all internal users who clicked a link leading to a known phishing domain or GoPhish tracking URL within the last 24 hours.",
+      "index_pattern": "proxy-logs-*",
+      "kql": "event.category:network AND network.direction:outbound AND url.domain:(\"phishing-lab.local\" OR \"phish\" OR \"credential-harvest\") AND NOT url.domain:\"company.local\" AND @timestamp:[now-24h TO now]",
+      "time_range": "Last 24 hours",
+      "investigation_notes": "Pivot on user.name to check all subsequent activity. Look for auth events or lateral movement within 30 minutes of the click."
+    },
+    {
+      "id": "PHQ-002",
+      "title": "Credential Submissions to External Sites",
+      "description": "Detect HTTP POST requests containing credential-like field names sent to non-corporate domains.",
+      "index_pattern": "proxy-logs-*",
+      "kql": "http.request.method:POST AND http.request.body.content:(\"password\" OR \"passwd\" OR \"credential\" OR \"login\") AND NOT destination.domain:\"company.local\" AND network.direction:outbound AND @timestamp:[now-7d TO now]",
+      "time_range": "Last 7 days",
+      "investigation_notes": "Cross-reference submitting users with recent phishing campaign targets. Treat any match as a credential compromise incident."
+    },
+    {
+      "id": "PHQ-003",
+      "title": "Email Links Pointing to IP Addresses",
+      "description": "Find emails containing hyperlinks that point directly to IP addresses rather than domain names — strong indicator of phishing.",
+      "index_pattern": "email-gateway-*",
+      "kql": "email.url:/https?:\\/\\/\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/ AND event.category:email AND @timestamp:[now-7d TO now]",
+      "time_range": "Last 7 days",
+      "investigation_notes": "Extract the IP and run reputation check. Block the IP at the email gateway. Notify all recipients."
+    },
+    {
+      "id": "PHQ-004",
+      "title": "Executable File Downloads via Email-Referred Links",
+      "description": "Detect file downloads with executable MIME types where the referer header indicates the request originated from an email client or webmail.",
+      "index_pattern": "proxy-logs-*",
+      "kql": "http.response.mime_type:(\"application/octet-stream\" OR \"application/exe\" OR \"application/x-msdownload\" OR \"application/zip\") AND http.request.referrer:(\"mail.\" OR \"webmail.\" OR \"outlook.\" OR \"mail.google.com\") AND @timestamp:[now-24h TO now]",
+      "time_range": "Last 24 hours",
+      "investigation_notes": "Hash the downloaded file, check against VirusTotal. Quarantine endpoint immediately if file is malicious. Preserve memory snapshot."
+    },
+    {
+      "id": "PHQ-005",
+      "title": "Multiple Users Accessing the Same Suspicious URL",
+      "description": "Find external URLs that multiple internal users have visited, which may indicate a phishing campaign email was broadly distributed.",
+      "index_pattern": "proxy-logs-*",
+      "kql": "NOT url.domain:\"company.local\" AND network.direction:outbound AND @timestamp:[now-4h TO now]",
+      "aggregation": "terms on url.full with min_doc_count:3 and sub-aggregation of unique user.name count",
+      "time_range": "Last 4 hours",
+      "investigation_notes": "Any external URL with 3+ distinct users in a short window warrants immediate investigation. Pull the email that distributed the link."
+    },
+    {
+      "id": "PHQ-006",
+      "title": "After-Hours Email Link Clicks",
+      "description": "Detect proxy hits from email-referred links occurring outside business hours (before 08:00 or after 20:00), which may indicate compromised account automation.",
+      "index_pattern": "proxy-logs-*",
+      "kql": "http.request.referrer:(\"mail.\" OR \"webmail.\" OR \"outlook.\") AND NOT url.domain:\"company.local\" AND (hour_of_day < 8 OR hour_of_day > 20) AND @timestamp:[now-7d TO now]",
+      "time_range": "Last 7 days",
+      "investigation_notes": "Legitimate after-hours clicks do happen, but combined with suspicious domain, escalate for review. Check if the user account was active at that time."
+    },
+    {
+      "id": "PHQ-007",
+      "title": "New Domain First Seen in Email Links",
+      "description": "Identify email links pointing to domains that have not been seen in email traffic in the past 30 days — new domains are frequently registered for phishing.",
+      "index_pattern": "email-gateway-*",
+      "kql": "email.url:* AND event.category:email AND NOT email.url_domain_seen_before:true AND @timestamp:[now-24h TO now]",
+      "time_range": "Last 24 hours",
+      "investigation_notes": "Run whois on the domain. Domains registered within 30 days are high-risk. Block preemptively if content is suspicious."
+    },
+    {
+      "id": "PHQ-008",
+      "title": "High Volume Emails from New External Sender",
+      "description": "Detect external senders that have sent more than 10 emails to internal recipients within 1 hour and have no prior sending history.",
+      "index_pattern": "email-gateway-*",
+      "kql": "event.category:email AND email.direction:inbound AND email.from_domain_first_seen:true AND @timestamp:[now-1h TO now]",
+      "aggregation": "terms on email.from with min_doc_count:10",
+      "time_range": "Last 1 hour",
+      "investigation_notes": "Cross-reference sending domain reputation. If domain is newly registered or has poor reputation, quarantine all emails from the sender."
+    },
+    {
+      "id": "PHQ-009",
+      "title": "URLs with Suspicious or High-Risk TLDs in Email",
+      "description": "Find emails containing links using TLDs commonly associated with phishing and free domain abuse.",
+      "index_pattern": "email-gateway-*",
+      "kql": "email.url:/.*\\.(xyz|tk|ml|ga|cf|gq|top|work|click|link|online|site|website|space|icu|buzz|fun)(\\/|$)/ AND event.category:email AND @timestamp:[now-7d TO now]",
+      "time_range": "Last 7 days",
+      "investigation_notes": "Suspicious TLDs alone are not conclusive but raise the risk score. Combine with other indicators. Consider blocking .tk and .ml at the gateway entirely."
+    },
+    {
+      "id": "PHQ-010",
+      "title": "Proxy Activity After Phishing Click (Pivot Investigation)",
+      "description": "For a user known to have clicked a phishing link, retrieve all their subsequent proxy activity within 2 hours to identify C2, data exfiltration, or lateral movement.",
+      "index_pattern": "proxy-logs-*",
+      "kql": "user.name:\"TARGET_USER\" AND @timestamp:[CLICK_TIMESTAMP TO \"CLICK_TIMESTAMP+2h\"] AND network.direction:outbound",
+      "time_range": "Custom: 2 hours from phishing click timestamp",
+      "investigation_notes": "Replace TARGET_USER and CLICK_TIMESTAMP with values from the GoPhish campaign results. Look for unusual domains, large data transfers, or connections to known C2 infrastructure."
+    }
+  ]
+}

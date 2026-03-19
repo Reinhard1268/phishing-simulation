@@ -1,0 +1,115 @@
+# Environment variables - NEVER commit these
+.env
+.env.local
+.env.production
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-debug.log
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# GoPhish
+# Never commit GoPhish database (contains target data)
+gophish.db
+*.db
+gophish/gophish.db
+
+# GoPhish binary (download separately)
+gophish
+gophish-linux-64bit*
+gophish-*.zip
+
+# Real campaign results (contains target PII)
+# Only keep sample/fake results
+gophish/results/real-*.json
+gophish/campaigns/real-*.json
+
+# MailHog
+mailhog
+MailHog_linux_amd64
+
+# Real email files (may contain PII)
+*.eml
+*.msg
+detection/email-parser/results/*.json
+
+# SSL certificates (GoPhish generates these)
+*.crt
+*.key
+*.pem
+gophish/static/endpoint/
+phishing_cert*
+phishing.crt
+phishing.key
+
+# Campaign logs (may contain target data)
+logs/
+*.log
+
+# Screenshots (generated during campaigns)
+demos/brute-force-demo/screenshots/*
+demos/phishing-demo/screenshots/*
+!demos/brute-force-demo/screenshots/.gitkeep
+!demos/phishing-demo/screenshots/.gitkeep
+
+# Report outputs (generated at runtime)
+metrics/campaign-stats/*.pdf
+metrics/click-rates/*.png
+reports/generated/
+
+# Credentials and API keys
+credentials.json
+secrets.yml
+config/secrets*
+*_credentials*
+*_secrets*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test outputs
+.pytest_cache/
+.coverage
+htmlcov/
+test-results/
+*.test.log
+
+# Docker
+docker-compose.override.yml
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Awareness training generated certificates
+user-training/mock-training/certificates/

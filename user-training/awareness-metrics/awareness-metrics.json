@@ -1,0 +1,58 @@
+{
+  "program_name": "Phishing Security Awareness Program",
+  "organization": "company.local",
+  "measurement_period": "2024-Q1",
+  "pre_training": {
+    "measurement_date": "2024-01-16",
+    "campaign_reference": "Campaign-Round1-NoTraining",
+    "quiz_avg_score": 42,
+    "quiz_pass_rate": 20,
+    "phishing_recognition_rate": 34,
+    "click_rate": 70,
+    "credential_submission_rate": 40,
+    "reporting_rate": 10,
+    "avg_time_to_click_minutes": 12,
+    "per_user": [
+      { "email": "james.oduya@company.local", "quiz_score": 40, "clicked": true, "submitted": true, "reported": false },
+      { "email": "sandra.mensah@company.local", "quiz_score": 35, "clicked": true, "submitted": false, "reported": false },
+      { "email": "kevin.tremblay@company.local", "quiz_score": 75, "clicked": false, "submitted": false, "reported": true },
+      { "email": "aisha.diallo@company.local", "quiz_score": 30, "clicked": true, "submitted": true, "reported": false },
+      { "email": "patrick.bouchard@company.local", "quiz_score": 45, "clicked": true, "submitted": false, "reported": false },
+      { "email": "mei.nakashima@company.local", "quiz_score": 70, "clicked": false, "submitted": false, "reported": false },
+      { "email": "david.asante@company.local", "quiz_score": 38, "clicked": true, "submitted": true, "reported": false },
+      { "email": "fatima.alhassan@company.local", "quiz_score": 42, "clicked": true, "submitted": false, "reported": false },
+      { "email": "luc.fontaine@company.local", "quiz_score": 28, "clicked": true, "submitted": true, "reported": false },
+      { "email": "priya.sharma@company.local", "quiz_score": 17, "clicked": true, "submitted": false, "reported": false }
+    ]
+  },
+  "post_training": {
+    "measurement_date": "2024-03-12",
+    "campaign_reference": "Campaign-Round3-TunedDefenses",
+    "quiz_avg_score": 81,
+    "quiz_pass_rate": 90,
+    "phishing_recognition_rate": 78,
+    "click_rate": 10,
+    "credential_submission_rate": 0,
+    "reporting_rate": 60,
+    "avg_time_to_click_minutes": null,
+    "per_user": [
+      { "email": "james.oduya@company.local", "quiz_score": 80, "clicked": false, "submitted": false, "reported": true },
+      { "email": "sandra.mensah@company.local", "quiz_score": 85, "clicked": false, "submitted": false, "reported": true },
+      { "email": "kevin.tremblay@company.local", "quiz_score": 100, "clicked": false, "submitted": false, "reported": true },
+      { "email": "aisha.diallo@company.local", "quiz_score": 60, "clicked": true, "submitted": false, "reported": false },
+      { "email": "patrick.bouchard@company.local", "quiz_score": 80, "clicked": false, "submitted": false, "reported": false },
+      { "email": "mei.nakashima@company.local", "quiz_score": 90, "clicked": false, "submitted": false, "reported": true },
+      { "email": "david.asante@company.local", "quiz_score": 80, "clicked": false, "submitted": false, "reported": true },
+      { "email": "fatima.alhassan@company.local", "quiz_score": 85, "clicked": false, "submitted": false, "reported": true },
+      { "email": "luc.fontaine@company.local", "quiz_score": 70, "clicked": false, "submitted": false, "reported": false },
+      { "email": "priya.sharma@company.local", "quiz_score": 75, "clicked": false, "submitted": false, "reported": false }
+    ]
+  },
+  "improvement": {
+    "quiz_score_delta": 39,
+    "click_rate_reduction_pct": 85.7,
+    "submission_rate_reduction_pct": 100,
+    "reporting_rate_increase_pct": 500,
+    "users_needing_followup": ["aisha.diallo@company.local"]
+  }
+}
